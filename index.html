@@ -1,38 +1,99 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
+<head>
+    <title>Player video</title>
+    <link href="main.css" rel="stylesheet" type="text/css">
+    <script src="https://content.jwplatform.com/libraries/Jq6HIbgz.js" type="text/javascript"></script>
+</head>
+<body>
+<!--  Fullscreen Video CSS -->
+<style>
+    #player {
+        position: absolute;
+        width: 100% !important;
+        height: 100% !important;
+    }
+</style>
 
-	<head>
-		<meta charset="UTF-8">
-		<title>m3u8 player</title>
-		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
-		
-		<link href="video-js/video-js.css" rel="stylesheet">
-		<script src="video-js/jquery-3.2.1.min.js" type="text/javascript" charset="utf-8"></script>
-		<script src="video-js/video.js"></script>
-		<script src="video-js/videojs-contrib-hls.min.js"></script>
-		<script src="video-js/m3u8player.js" type="text/javascript" charset="utf-8"></script>
-	</head>
-	<style type="text/css">
-		* {
-			margin: 0;
-			padding: 0;
-		}
-		
-		.box {
-			max-width: 600px;
-			width: 100%;
-			margin: 0 auto;
-			position: relative;
-		}
-	</style>
+<!-- Player -->
+<div id="player"></div>
 
-	<body>
-		<div class="box">
-			<live-player width="" height="" src="xx"></live-player>
-		</div>
-		<script type="text/javascript">
-			initAllPlayer()
-		</script>
-	</body>
+<script>
+    const playerInstance = jwplayer("player").setup({
+        controls: true,
+        sharing: false,
+        displaytitle: false,
+        rewind: true,
+        skin: {
+            name: "netflix"
+        },
 
+        logo: false,
+
+        captions: {
+            color: "#FFF",
+            fontSize: 14,
+            backgroundOpacity: 0,
+            edgeStyle: "raised"
+        },
+
+        playlist: [
+            {
+                sources: [
+                    {
+                        file:
+                            "filename.m3u8",
+                        label: "1080p",
+                        default: true
+                    },
+
+                ],
+            }
+        ],
+    });
+
+    playerInstance.on("ready", function () {
+        // Move the timeslider in-line with other controls
+        const playerContainer = playerInstance.getContainer();
+        const buttonContainer = playerContainer.querySelector(".jw-button-container");
+        const spacer = buttonContainer.querySelector(".jw-spacer");
+        const timeSlider = playerContainer.querySelector(".jw-slider-time");
+        buttonContainer.replaceChild(timeSlider, spacer);
+
+        // Forward 10 seconds
+        const rewindContainer = playerContainer.querySelector(
+            ".jw-display-icon-rewind"
+        );
+        const forwardContainer = rewindContainer.cloneNode(true);
+        const forwardDisplayButton = forwardContainer.querySelector(
+            ".jw-icon-rewind"
+        );
+        forwardDisplayButton.style.transform = "scaleX(-1)";
+        forwardDisplayButton.ariaLabel = "Forward 10 Seconds";
+        const nextContainer = playerContainer.querySelector(".jw-display-icon-next");
+        nextContainer.parentNode.insertBefore(forwardContainer, nextContainer);
+
+        // control bar icon
+        playerContainer.querySelector(".jw-display-icon-next").style.display = "none"; // hide next button
+        const rewindControlBarButton = buttonContainer.querySelector(
+            ".jw-icon-rewind"
+        );
+        const forwardControlBarButton = rewindControlBarButton.cloneNode(true);
+        forwardControlBarButton.style.transform = "scaleX(-1)";
+        forwardControlBarButton.ariaLabel = "Forward 10 Seconds";
+        rewindControlBarButton.parentNode.insertBefore(
+            forwardControlBarButton,
+            rewindControlBarButton.nextElementSibling
+        );
+
+        // add onclick handlers
+        [forwardDisplayButton, forwardControlBarButton].forEach((button) => {
+            button.onclick = () => {
+                playerInstance.seek(playerInstance.getPosition() + 10);
+            };
+        });
+    });
+
+</script>
+</body>
 </html>
